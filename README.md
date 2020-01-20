@@ -1,0 +1,2 @@
+# Breweries Map
+This HTML file shows all breweries in California, the U.S. as long as its location information (longitude and latitude) is given. The brewery information is provided by Open Brewery DB (https://www.openbrewerydb.org/).

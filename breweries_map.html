@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <title>California Breweries</title>
+    <style>
+      #map {
+        height: 100%;
+      }
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="map"></div>
+    <script>
+
+      function initMap(){
+        const apiUrlBase = "https://api.openbrewerydb.org/breweries?by_state=california";
+      
+        const getBreweriesPage = async function(pageIndex) {
+          let apiResults = await fetch(apiUrlBase + `&page=${pageIndex}&per_page=50`)
+                          .then(resp => {
+                              return resp.json();
+                          });
+
+          let breweries = [];
+          apiResults.forEach(brewery => {
+            let latitude = parseFloat(brewery.latitude);
+            let longitude = parseFloat(brewery.longitude);
+            if (isNaN(latitude) || isNaN(longitude)) { 
+              return;
+            };
+
+            breweries.push({lat: latitude, lng: longitude});
+          });
+
+          return breweries;
+        };
+
+        const getBreweries = async function() {
+          let pageIndex = 0;
+          let pageResults = [];
+          let breweries = [];
+
+          do {
+            pageResults = await getBreweriesPage(pageIndex++);
+            breweries = breweries.concat(pageResults);
+          } while (pageResults.length > 0);
+
+          return breweries;
+      };
+
+
+      (async ()=>{
+        const breweries = await getBreweries();
+        for(var i = 0; i < breweries.length; i ++) {
+        var pos = breweries[i];
+        
+        if (i === 0){
+            var map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 6,
+            center: pos
+            })
+        };
+
+        var marker = new google.maps.Marker({
+            position: pos,
+            map: map,
+        });
+      }})();
+    }
+
+    </script>
+    <script async defer
+    src="https://maps.googleapis.com/maps/api/js?callback=initMap">
+    </script>
+
+  </body>
+</html>
